@@ -4,16 +4,14 @@ from pydantic import BaseModel
 import pandas as pd
 import joblib
 from datetime import datetime
+import os
 
 app = FastAPI()
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+model = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
 
-model = joblib.load("model.pkl")
-
-
-
-MD_df_btc = pd.read_csv("MD_BTC_7_years.csv")
-
+MD_df_btc = pd.read_csv(os.path.join(BASE_DIR, "MD_BTC_7_years.csv"))
 
 MD_df_btc = MD_df_btc.sort_values("Date").reset_index(drop=True)
 
@@ -93,23 +91,23 @@ def build_features(df):
 
 @app.get("/")
 def serve_about_root():
-    return FileResponse("about.html")
+    return FileResponse(os.path.join(BASE_DIR, "about.html"))
 
 @app.get("/about")
 def serve_about():
-    return FileResponse("about.html")
+    return FileResponse(os.path.join(BASE_DIR, "about.html"))
 
 @app.get("/prediction")
 def serve_ui():
-    return FileResponse("ui.html")
+    return FileResponse(os.path.join(BASE_DIR, "ui.html"))
 
 @app.get("/style.css")
 def serve_css():
-    return FileResponse("style.css")
+    return FileResponse(os.path.join(BASE_DIR, "style.css"))
 
 @app.get("/nav.html")
 def serve_nav():
-    return FileResponse("nav.html")
+    return FileResponse(os.path.join(BASE_DIR, "nav.html"))
 
 
 
