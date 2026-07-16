@@ -1,0 +1,205 @@
+<style>
+  /* ---------- NAV ---------- */
+  #main-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 40px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(7, 10, 18, 0.7);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  #main-nav .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 25px;
+    color: #eef2f8;
+  }
+
+  #main-nav .brand .sep {
+    color: #5f6b80;
+    font-weight: 300;
+  }
+
+  #main-nav .brand .tag {
+    color: #9aa7bd;
+    font-weight: 400;
+    font-size: 14px;
+  }
+
+  #main-nav .tabs {
+    display: flex;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 5px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  #main-nav .tabs a {
+    padding: 8px 18px;
+    border-radius: 9px;
+    color: #9aa7bd;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all .2s ease;
+  }
+
+  #main-nav .tabs a.active {
+    background: rgba(232, 162, 77, 0.12);
+    color: #e8a24d;
+    box-shadow: 0 0 0 1px rgba(232, 162, 77, 0.35) inset;
+  }
+
+  #main-nav .tabs a:hover:not(.active) {
+    color: #eef2f8;
+  }
+
+  #main-nav .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    color: #9aa7bd;
+    font-size: 15px;
+  }
+
+  #main-nav .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2a3346, #1a2032);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #eef2f8;
+  }
+
+  /* --- Mobile Additions --- */
+  .mobile-menu-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #eef2f8;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 10px;
+  }
+
+  .mobile-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(7, 10, 18, 0.98);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    flex-direction: column;
+    padding: 15px 20px;
+    gap: 10px;
+  }
+  
+  .mobile-dropdown.open {
+    display: flex;
+  }
+  
+  .mobile-dropdown a {
+    color: #9aa7bd;
+    text-decoration: none;
+    font-size: 16px;
+    padding: 12px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    text-align: center;
+    font-weight: 500;
+  }
+  
+  .mobile-dropdown a.active {
+    background: rgba(232, 162, 77, 0.12);
+    color: #e8a24d;
+  }
+
+  @media (max-width: 768px) {
+    #main-nav {
+      padding: 12px 20px;
+    }
+    #main-nav .brand {
+      font-size: 18px;
+    }
+    #main-nav .tabs {
+      display: none;
+    }
+    #main-nav .nav-right span {
+      display: none;
+    }
+    .mobile-menu-btn {
+      display: block;
+    }
+  }
+</style>
+<nav id="main-nav">
+  <div class="brand">Bitcoin Price Predictor </div>
+  <div class="tabs">
+    <a href="/" id="tab-about">About</a>
+    <a href="/prediction#prediction" id="tab-prediction">Prediction</a>
+    <a href="/prediction#history" id="tab-history">History</a>
+  </div>
+  <div class="nav-right">
+    <span>Machine Learning Tool</span>
+    <div class="avatar">₿</div>
+    <button class="mobile-menu-btn" onclick="document.getElementById('mobile-menu').classList.toggle('open')">☰</button>
+  </div>
+  <div id="mobile-menu" class="mobile-dropdown">
+    <a href="/" id="mobile-tab-about">About</a>
+    <a href="/prediction#prediction" id="mobile-tab-prediction">Prediction</a>
+    <a href="/prediction#history" id="mobile-tab-history">History</a>
+  </div>
+</nav>
+
+<script>
+  setTimeout(() => {
+    ['about', 'prediction', 'history'].forEach(tab => {
+      const desktop = document.getElementById('tab-' + tab);
+      const mobile = document.getElementById('mobile-tab-' + tab);
+      if (desktop && desktop.classList.contains('active') && mobile) {
+        mobile.classList.add('active');
+      }
+    });
+  }, 100);
+</script>
+
+<div id="disclaimer-modal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.8); backdrop-filter:blur(5px); align-items:center; justify-content:center; padding: 20px;">
+  <div style="background:rgba(12,17,32,0.95); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:30px; max-width:700px; max-height: 85vh; overflow-y: auto; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+      <h2 style="margin:0 0 15px; color:#eef2f8; font-size:22px; font-weight:600; text-align:center;">Investment Risk Disclaimer</h2>
+      <div style="color:#9aa7bd; font-size:14px; line-height:1.6; margin-bottom:25px; text-align: left;">
+        <p><strong>IMPORTANT:</strong> Please read and acknowledge this disclaimer before using the Bitcoin Price Prediction System.</p>
+        <p>This platform provides Bitcoin price forecasts generated by a machine learning model using historical market data, technical indicators, and statistical analysis. All predictions, forecasts, estimates, and related information are provided solely for educational, research, and informational purposes.</p>
+        <p>The predictions generated by this system do not constitute financial advice, investment advice, trading advice, legal advice, or any recommendation to buy, sell, or hold any cryptocurrency, digital asset, security, or financial instrument.</p>
+        <p>Cryptocurrency markets are highly volatile and unpredictable. Actual market prices may differ significantly from any forecast generated by this system. Past performance, historical data, and machine learning predictions do not guarantee future results.</p>
+        <p>By using this platform, you acknowledge and agree that:</p>
+        <ul style="margin-left: 20px; margin-bottom: 15px;">
+          <li>All investment and trading decisions are made entirely at your own risk.</li>
+          <li>You are solely responsible for evaluating any information provided by this platform.</li>
+          <li>You should conduct your own research and consult qualified financial, legal, or investment professionals before making any investment decisions.</li>
+          <li>The creators, owners, developers, operators, affiliates, and contributors of this platform shall not be liable for any direct, indirect, incidental, consequential, special, punitive, or financial losses arising from the use of, reliance upon, or inability to use the predictions or information provided by this system.</li>
+          <li>No guarantee is made regarding the accuracy, completeness, reliability, profitability, or suitability of any prediction generated by the platform.</li>
+        </ul>
+        <p>By clicking "I Understand and Accept" and continuing to use this service, you confirm that you have read, understood, and accepted this disclaimer and agree to use the platform entirely at your own discretion and risk.</p>
+      </div>
+      <div style="display:flex; gap:15px; justify-content:center;">
+          <button onclick="document.getElementById('disclaimer-modal').style.display='none'" style="padding:10px 20px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:transparent; color:#9aa7bd; cursor:pointer; font-size:15px; transition: color 0.2s;">Cancel</button>
+          <button onclick="if(window.agreeDisclaimer) window.agreeDisclaimer(); else { document.getElementById('disclaimer-modal').style.display='none'; }" style="padding:10px 20px; border-radius:8px; border:none; background:#5ec8e8; color:#070a12; font-weight:600; cursor:pointer; font-size:15px;">I Understand and Accept</button>
+      </div>
+  </div>
+</div>

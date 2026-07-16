@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — Bitcoin Price Predictor</title>
+  <style>
+    :root {
+      --bg-0: #070a12;
+      --bg-1: #0c1120;
+      --panel: rgba(255, 255, 255, 0.035);
+      --panel-border: rgba(255, 255, 255, 0.08);
+      --accent-cyan: #5ec8e8;
+      --accent-blue: #3b7fd9;
+      --accent-amber: #e8a24d;
+      --text-hi: #eef2f8;
+      --text-mid: #9aa7bd;
+      --text-low: #5f6b80;
+      --mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+      --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      background:
+        radial-gradient(ellipse 900px 500px at 15% -5%, rgba(94, 200, 232, 0.10), transparent 60%),
+        radial-gradient(ellipse 700px 500px at 100% 10%, rgba(232, 162, 77, 0.06), transparent 55%),
+        var(--bg-0);
+      color: var(--text-hi);
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    /* ---------- NAV ---------- */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 40px;
+      border-bottom: 1px solid var(--panel-border);
+      background: rgba(7, 10, 18, 0.7);
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 19.5px;
+    }
+
+    .brand .sep {
+      color: var(--text-low);
+      font-weight: 300;
+    }
+
+    .brand .tag {
+      color: var(--text-mid);
+      font-weight: 400;
+      font-size: 16.5px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 5px;
+      border-radius: 12px;
+      border: 1px solid var(--panel-border);
+    }
+
+    .tabs a {
+      padding: 8px 18px;
+      border-radius: 9px;
+      color: var(--text-mid);
+      text-decoration: none;
+      font-size: 16.5px;
+      font-weight: 500;
+      transition: all .2s ease;
+    }
+
+    .tabs a.active {
+      background: rgba(232, 162, 77, 0.12);
+      color: var(--accent-amber);
+      box-shadow: 0 0 0 1px rgba(232, 162, 77, 0.35) inset;
+    }
+
+    .tabs a:hover:not(.active) {
+      color: var(--text-hi);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: var(--text-mid);
+      font-size: 16.5px;
+    }
+
+    .avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2a3346, #1a2032);
+      border: 1px solid var(--panel-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15.5px;
+    }
+
+    /* ---------- HERO ---------- */
+    .hero {
+      padding: 25px 40px 10px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 15.5px;
+      letter-spacing: .18em;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .eyebrow::before {
+      content: '';
+      width: 26px;
+      height: 1px;
+      background: var(--accent-cyan);
+      opacity: .5;
+    }
+
+    h1 {
+      font-size: clamp(30px, 4vw, 46px);
+      margin: 0 0 14px;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg, #eef2f8 20%, var(--accent-cyan) 65%, var(--accent-blue) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-sub {
+      color: var(--text-mid);
+      font-size: 18px;
+      line-height: 1.65;
+      max-width: 1400px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+
+    /* ---------- GRID ---------- */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      margin-top: 34px;
+      align-items: start;
+    }
+
+    @media (max-width:1100px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 18px;
+      padding: 26px 26px 30px;
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 18px;
+      padding: 1px;
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), transparent 40%);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .card h2 {
+      font-size: 18.5px;
+      margin: 0 0 20px;
+      color: var(--text-hi);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: space-between;
+    }
+
+    .card h2 .h2-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card h2 .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      box-shadow: 0 0 10px var(--accent-cyan);
+      flex-shrink: 0;
+    }
+
+    .badge {
+      font-family: var(--mono);
+      font-size: 13.5px;
+      color: var(--accent-cyan);
+      background: rgba(94, 200, 232, 0.08);
+      border: 1px solid rgba(94, 200, 232, 0.25);
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    /* ---------- Forecast Horizon stat card ---------- */
+    .horizon-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .horizon-stat {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin: 18px 0 16px;
+      padding: 20px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(94, 200, 232, 0.08), rgba(232, 162, 77, 0.05));
+      border: 1px solid var(--panel-border);
+    }
+
+    .horizon-stat .num {
+      font-family: var(--mono);
+      font-size: 42.5px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      line-height: 1;
+    }
+
+    .horizon-stat .unit {
+      font-size: 15.5px;
+      color: var(--text-mid);
+    }
+
+    .horizon-flow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+      font-family: var(--mono);
+      font-size: 13.5px;
+      color: var(--text-low);
+    }
+
+    .horizon-flow .node {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--panel-border);
+      border-radius: 7px;
+      padding: 6px 10px;
+      color: var(--text-mid);
+    }
+
+    .horizon-flow .arrow {
+      color: var(--accent-amber);
+    }
+
+    /* ---------- Data Preprocessing steps ---------- */
+    ol.steps {
+      list-style: none;
+      margin: 14px 0 0;
+      padding: 0;
+      counter-reset: step;
+    }
+
+    ol.steps li {
+      counter-increment: step;
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 16px;
+      color: var(--text-mid);
+    }
+
+    ol.steps li:last-child {
+      border-bottom: none;
+    }
+
+    ol.steps li::before {
+      content: counter(step);
+      font-family: var(--mono);
+      font-size: 13.5px;
+      color: var(--accent-amber);
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      background: rgba(232, 162, 77, 0.08);
+      border: 1px solid rgba(232, 162, 77, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    ol.steps li b {
+      color: var(--text-hi);
+      font-weight: 600;
+    }
+
+    /* ---------- Why Ensemble comparison ---------- */
+    .vs-row {
+      display: flex;
+      align-items: stretch;
+      gap: 12px;
+      margin: 16px 0 18px;
+    }
+
+    .vs-card {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .vs-card .vs-title {
+      font-size: 15.5px;
+      font-weight: 600;
+      color: var(--text-hi);
+      margin-bottom: 6px;
+    }
+
+    .vs-card.linear .vs-title {
+      color: var(--accent-cyan);
+    }
+
+    .vs-card.xgb .vs-title {
+      color: var(--accent-amber);
+    }
+
+    .vs-card .vs-desc {
+      font-size: 14.5px;
+      color: var(--text-low);
+      line-height: 1.55;
+    }
+
+    .vs-plus {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-low);
+      font-size: 18.5px;
+      flex-shrink: 0;
+      width: 20px;
+    }
+
+    h3.sub {
+      font-size: 16px;
+      color: var(--accent-amber);
+      margin: 22px 0 8px;
+      font-weight: 600;
+      letter-spacing: .01em;
+    }
+
+    h3.sub:first-of-type {
+      margin-top: 0;
+    }
+
+    p.desc {
+      font-size: 16px;
+      line-height: 1.65;
+      color: var(--text-mid);
+      margin: 0 0 4px;
+    }
+
+    /* fold accuracy box */
+    .fold-box {
+      margin-top: 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+
+    .fold-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 15px;
+      color: var(--text-mid);
+      padding: 4px 0;
+    }
+
+    .fold-row b {
+      color: var(--text-hi);
+      font-weight: 600;
+    }
+
+    .avg-line {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-top: 10px;
+      padding-top: 12px;
+      border-top: 1px solid var(--panel-border);
+    }
+
+    .avg-line .lbl {
+      font-size: 14.5px;
+      color: var(--text-low);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .avg-line .val {
+      font-family: var(--mono);
+      font-size: 28.5px;
+      font-weight: 700;
+      color: var(--accent-amber);
+    }
+
+    /* pipeline dots */
+    .pipeline {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 16px 0 6px;
+    }
+
+    .pipe-group {
+      display: flex;
+      gap: 3px;
+    }
+
+    .pipe-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 2px;
+    }
+
+    .pipe-dot.grey {
+      background: #3a4358;
+    }
+
+    .pipe-dot.cyan {
+      background: var(--accent-cyan);
+    }
+
+    .pipe-dot.amber {
+      background: var(--accent-amber);
+    }
+
+    .pipe-arrow {
+      color: var(--text-low);
+      font-size: 15.5px;
+      padding: 0 2px;
+    }
+
+    .pipe-caption {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--text-low);
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    /* threshold / target */
+    .threshold-row {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .threshold-text {
+      flex: 1;
+      font-size: 15.5px;
+      line-height: 1.7;
+      color: var(--text-mid);
+    }
+
+    .threshold-text code {
+      display: block;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--panel-border);
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 14px;
+      color: var(--accent-cyan);
+      margin: 8px 0;
+    }
+
+    .target {
+      width: 64px;
+      height: 64px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232, 162, 77, 0.15), transparent 70%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .target svg {
+      width: 44px;
+      height: 44px;
+    }
+
+    /* feature list */
+    ul.feat {
+      list-style: none;
+      margin: 0 0 20px;
+      padding: 0;
+    }
+
+    ul.feat li {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 16px;
+      color: var(--text-mid);
+    }
+
+    ul.feat li:last-child {
+      border-bottom: none;
+    }
+
+    ul.feat .ico {
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      flex-shrink: 0;
+      background: rgba(94, 200, 232, 0.08);
+      border: 1px solid rgba(94, 200, 232, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-cyan);
+    }
+
+    ul.feat b {
+      color: var(--text-hi);
+      font-weight: 600;
+    }
+
+    ul.feat .caption {
+      display: block;
+      font-size: 14.5px;
+      color: var(--text-low);
+      margin-top: 2px;
+    }
+
+    /* architecture diagram */
+    .arch {
+      margin: 18px 0 22px;
+    }
+
+    .arch-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 22px 4px;
+    }
+
+    .arch-node {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--panel-border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-family: var(--mono);
+      font-size: 13.5px;
+      text-align: center;
+      color: var(--text-mid);
+      min-width: 64px;
+    }
+
+    .arch-node.meta {
+      border-color: rgba(232, 162, 77, 0.4);
+      color: var(--accent-amber);
+    }
+
+    .arch-node.base {
+      border-color: rgba(94, 200, 232, 0.35);
+      color: var(--accent-cyan);
+    }
+
+    .arch-arrow {
+      color: var(--text-low);
+      font-size: 18.5px;
+    }
+
+    .model-cols {
+      display: flex;
+      gap: 24px;
+      margin-top: 4px;
+    }
+
+    .model-col {
+      flex: 1;
+    }
+
+    .model-col .col-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-hi);
+      margin-bottom: 10px;
+    }
+
+    .model-col .col-title .sq {
+      width: 9px;
+      height: 9px;
+      border-radius: 2px;
+    }
+
+    .model-col .sq.base {
+      background: var(--accent-cyan);
+    }
+
+    .model-col .sq.meta {
+      background: var(--accent-amber);
+    }
+
+    .model-col ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .model-col li {
+      font-size: 15.5px;
+      color: var(--text-mid);
+      padding: 5px 0;
+    }
+
+    .ensemble-note {
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--text-low);
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--panel-border);
+    }
+
+    /* tech stack row */
+    .stack-card {
+      grid-column: 1/-1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 22px;
+    }
+
+    .stack-items {
+      display: flex;
+      gap: 34px;
+      flex-wrap: wrap;
+    }
+
+    .stack-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 16.5px;
+      color: var(--text-hi);
+      font-weight: 500;
+    }
+
+    .stack-item .chip {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--panel-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15.5px;
+    }
+
+    /* disclaimer */
+    .disclaimer {
+      grid-column: 1/-1;
+      margin-top: 18px;
+      background: rgba(232, 162, 77, 0.05);
+      border: 1px solid rgba(232, 162, 77, 0.22);
+      border-radius: 14px;
+      padding: 16px 22px;
+      font-size: 15.5px;
+      color: var(--text-mid);
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .disclaimer b {
+      color: var(--accent-amber);
+    }
+
+    .disclaimer svg {
+      flex-shrink: 0;
+      margin-top: 2px;
+      width: 17px;
+      height: 17px;
+      color: var(--accent-amber);
+    }
+
+    ::selection {
+      background: rgba(94, 200, 232, 0.3);
+    }
+
+    @media (prefers-reduced-motion:no-preference) {
+      .card {
+        animation: rise .5s ease both;
+      }
+
+      .card:nth-child(1) {
+        animation-delay: .02s;
+      }
+
+      .card:nth-child(2) {
+        animation-delay: .08s;
+      }
+
+      .card:nth-child(3) {
+        animation-delay: .14s;
+      }
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="nav-placeholder"></div>
+
+  <div class="hero">
+    <div class="eyebrow">System Overview &amp; Model Documentation</div>
+    <h1>How the prediction engine works</h1>
+    <p class="hero-sub">A machine learning forecasting system that estimates Bitcoin's next-day closing price using
+      seven years of market history, engineered technical indicators, and a stacked ensemble of models validated the
+      way real trading conditions actually unfold.</p>
+  </div>
+
+  <div class="container">
+    <div class="grid">
+
+      <!-- CARD 1: Validation & Metrics -->
+      <div class="card">
+        <h2><span class="h2-left"><span class="dot"></span>Validation &amp; Evaluation Metrics</span></h2>
+
+        <h3 class="sub">Time Series Validation</h3>
+        <p class="desc">Market data is chronological, so random train/test splitting isn't appropriate — it can leak
+          future information into training. This system uses <b style="color:var(--text-hi)">TimeSeriesSplit
+            Cross-Validation</b>, which always trains on the past to predict the future, mirroring real market
+          conditions.</p>
+
+        <div class="fold-box">
+          <div class="fold-row"><span>Fold 1 Accuracy</span><b>67.77%</b></div>
+          <div class="fold-row"><span>Fold 2 Accuracy</span><b>67.49%</b></div>
+          <div class="avg-line">
+            <span class="lbl">Average</span>
+            <span class="val">67.63%</span>
+          </div>
+        </div>
+
+        <div class="pipeline" style="justify-content: space-between; align-items: flex-start;">
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div class="pipe-group">
+              <div class="pipe-dot grey"></div>
+              <div class="pipe-dot grey"></div>
+              <div class="pipe-dot grey"></div>
+            </div>
+            <span style="font-family: var(--mono); font-size: 13px; color: var(--text-low);">train</span>
+          </div>
+          <span class="pipe-arrow">→</span>
+          <div style="display: flex; flex-direction: column; gap: 8px; align-items: center;">
+            <div class="pipe-group">
+              <div class="pipe-dot cyan"></div>
+              <div class="pipe-dot cyan"></div>
+              <div class="pipe-dot grey"></div>
+            </div>
+            <span style="font-family: var(--mono); font-size: 13px; color: var(--text-low);">validate</span>
+          </div>
+          <span class="pipe-arrow">→</span>
+          <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end;">
+            <div class="pipe-group">
+              <div class="pipe-dot amber"></div>
+              <div class="pipe-dot amber"></div>
+              <div class="pipe-dot amber"></div>
+            </div>
+            <span style="font-family: var(--mono); font-size: 13px; color: var(--text-low);">forecast</span>
+          </div>
+        </div>
+
+        <div class="threshold-row">
+          <div class="threshold-text">
+            <b style="color:var(--text-hi)">±2% Threshold Accuracy</b> — a prediction counts as correct when it lands
+            within 2% of the actual closing price.
+            <code>Error = |Actual − Predicted| ÷ Actual</code>
+            e.g. Actual $100,000 vs Predicted $98,500 → 1.5% error → <span
+              style="color:var(--accent-cyan)">correct</span>
+          </div>
+          <div class="target">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#e8a24d" stroke-width="1.6">
+              <circle cx="12" cy="12" r="9" />
+              <circle cx="12" cy="12" r="5.5" />
+              <circle cx="12" cy="12" r="1.6" fill="#e8a24d" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 2: Feature Engineering -->
+      <div class="card">
+        <h2><span class="h2-left"><span class="dot"
+              style="background:var(--accent-blue);box-shadow:0 0 10px var(--accent-blue);"></span>Advanced Feature
+            Engineering</span><span class="badge">20+ features</span></h2>
+        <ul class="feat">
+          <li><span class="ico">◧</span>
+            <div><b>Historical Price Lags</b><span class="caption">Previous 1, 2 &amp; 7-day closing prices</span></div>
+          </li>
+          <li><span class="ico">↗</span>
+            <div><b>Return Analysis</b><span class="caption">1-day and 7-day price returns</span></div>
+          </li>
+          <li><span class="ico">∿</span>
+            <div><b>EMA 9 / EMA 20</b><span class="caption">Exponential moving averages</span></div>
+          </li>
+          <li><span class="ico">◔</span>
+            <div><b>RSI (14-day)</b><span class="caption">Momentum &amp; overbought/oversold zones</span></div>
+          </li>
+          <li><span class="ico">⌁</span>
+            <div><b>MACD</b><span class="caption">MACD line, signal line &amp; signal status</span></div>
+          </li>
+          <li><span class="ico">▤</span>
+            <div><b>Bollinger Bands</b><span class="caption">Upper, lower, middle band + position</span></div>
+          </li>
+          <li><span class="ico">▮</span>
+            <div><b>Volume Features</b><span class="caption">Volume ratio &amp; 7-day volume ratio</span></div>
+          </li>
+          <li><span class="ico">⤒</span>
+            <div><b>Trend Detection</b><span class="caption">Uptrend flag &amp; RSI zone classification</span></div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- CARD 3: ML Architecture -->
+      <style>
+        .ml-arch-card {
+          grid-row: span 2;
+        }
+      </style>
+      <div class="card ml-arch-card">
+        <h2><span class="h2-left"><span class="dot"
+              style="background:var(--accent-amber);box-shadow:0 0 10px var(--accent-amber);"></span>Machine Learning
+            Architecture</span></h2>
+
+        <div class="arch">
+          <div class="arch-row">
+            <div class="arch-node base">XGBoost</div>
+            <span class="arch-arrow">↘</span>
+            <div class="arch-node meta">Ridge<br>(meta)</div>
+            <span class="arch-arrow">↙</span>
+            <div class="arch-node base">Linear<br>Regression</div>
+          </div>
+        </div>
+
+        <div class="model-cols">
+          <div class="model-col">
+            <div class="col-title"><span class="sq base"></span>Base Models</div>
+            <ul>
+              <li>XGBoost Regressor — captures complex non-linear patterns</li>
+              <li>Linear Regression — direct linear relationships</li>
+            </ul>
+          </div>
+          <div class="model-col">
+            <div class="col-title"><span class="sq meta"></span>Meta Model</div>
+            <ul>
+              <li>Ridge Regression — weighs and combines base model outputs into the final forecast</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 class="sub" style="margin-top:22px;">Why Ensemble Learning?</h3>
+        <div class="vs-row">
+          <div class="vs-card linear">
+            <div class="vs-title">Linear Regression</div>
+            <div class="vs-desc">Performs well on linear relationships in the data.</div>
+          </div>
+          <div class="vs-plus">+</div>
+          <div class="vs-card xgb">
+            <div class="vs-title">XGBoost</div>
+            <div class="vs-desc">Captures complex, nonlinear market patterns.</div>
+          </div>
+        </div>
+        <p class="desc">Individual models capture different market behaviors on their own. Combining both through Ridge
+          Regression improves overall robustness and reduces prediction instability.</p>
+
+        <p class="ensemble-note">Multiple models are trained across different validation periods, and their predictions
+          are averaged into a final forecast — reducing variance and improving stability compared to any single model.
+        </p>
+      </div>
+
+      <!-- FORECAST HORIZON -->
+      <div class="card horizon-card">
+        <h2><span class="h2-left"><span class="dot"
+              style="background:var(--accent-cyan);box-shadow:0 0 10px var(--accent-cyan);"></span>Forecast
+            Horizon</span></h2>
+        <p class="desc">The model is designed specifically for Next Day Closing Price forecasting. Given today's market
+          data, the
+          system predicts Bitcoin's closing price for the next trading day.</p>
+        <div class="horizon-stat">
+          <span class="num"> Next Closing Price</span>
+          <span class="unit"></span>
+        </div>
+        <div class="horizon-flow">
+          <span class="node">Today's data</span>
+          <span class="arrow">→</span>
+          <span class="node">Model</span>
+          <span class="arrow">→</span>
+          <span class="node">Next close</span>
+        </div>
+      </div>
+
+      <!-- DATA PREPROCESSING -->
+      <div class="card">
+        <h2><span class="h2-left"><span class="dot"
+              style="background:var(--accent-blue);box-shadow:0 0 10px var(--accent-blue);"></span>Data
+            Preprocessing</span></h2>
+        <p class="desc">Before training, the raw data goes through several cleaning and preparation steps:</p>
+        <ol class="steps">
+          <li><b>Remove missing values</b> — incomplete rows are dropped</li>
+          <li><b>Calculate technical indicators</b> — RSI, MACD, Bollinger Bands, EMAs</li>
+          <li><b>Generate lag features</b> — prior-day and prior-week prices</li>
+          <li><b>Exclude invalid rows</b> — created during indicator calculations</li>
+          <li><b>Align features to the past</b> — ensures no future information leaks in</li>
+        </ol>
+      </div>
+
+      <!-- TECH STACK -->
+      <div class="card stack-card">
+        <h2 style="margin:0;"><span class="dot" style="background:var(--text-mid);box-shadow:none;"></span>Technology
+          Stack</h2>
+        <div class="stack-items">
+          <div class="stack-item"><span class="chip">🐍</span>Python</div>
+          <div class="stack-item"><span class="chip">#</span>NumPy</div>
+          <div class="stack-item"><span class="chip">▦</span>Pandas</div>
+          <div class="stack-item"><span class="chip">◎</span>Scikit-Learn</div>
+          <div class="stack-item"><span class="chip">✦</span>XGBoost</div>
+          <div class="stack-item"><span class="chip">▣</span>Joblib</div>
+        </div>
+      </div>
+
+      <!-- DISCLAIMER -->
+      <div class="disclaimer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path
+            d="M12 9v4M12 17h.01M10.29 3.86l-8.18 14.18A1.5 1.5 0 0 0 3.4 20h17.2a1.5 1.5 0 0 0 1.3-2.24L13.71 3.86a1.5 1.5 0 0 0-2.6 0z" />
+        </svg>
+        <div><b>Disclaimer:</b> Cryptocurrency markets are highly volatile and influenced by sentiment, regulation, and
+          global events. Predictions from this system are for educational and informational purposes only and are not
+          financial or investment advice.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    fetch('/nav.html')
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById('nav-placeholder').innerHTML = html;
+        document.getElementById('tab-about').classList.add('active');
+      });
+  </script>
+
+</body>
+
+</html>

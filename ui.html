@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bitcoin Closing Price Predictor | ML Tool</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="atmosphere"></div>
+
+  <!-- NAVBAR PLACEHOLDER -->
+  <div id="nav-placeholder"></div>
+
+  <main class="relative z-10 max-w-6xl mx-auto px-6 py-12">
+
+    <!-- PREDICTION PAGE -->
+    <section id="page-prediction" class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+
+      <!-- Input card -->
+      <div class="panel p-8">
+        <div class="space-y-5">
+
+          <div>
+            <label class="block text-sm text-[var(--text-mid)] mb-2">Today's Closing Price</label>
+            <div class="field flex items-center px-4 py-3">
+              <span class="text-[var(--text-dim)] mr-1">$</span>
+              <input id="closing" type="number" value="65000" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm text-[var(--text-mid)] mb-2">Today's Highest Price</label>
+            <div class="field flex items-center px-4 py-3">
+              <span class="text-[var(--text-dim)] mr-1">$</span>
+              <input id="highest" type="number" value="66100" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm text-[var(--text-mid)] mb-2">Today's Lowest Price</label>
+            <div class="field flex items-center px-4 py-3">
+              <span class="text-[var(--text-dim)] mr-1">$</span>
+              <input id="lowest" type="number" value="64200" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm text-[var(--text-mid)] mb-2">Today's Volume</label>
+            <div class="field flex items-center px-4 py-3">
+              <input id="volume" type="number" value="25000" />
+              <span class="text-[var(--text-dim)] ml-1">BTC</span>
+            </div>
+          </div>
+
+          <button id="predict-btn" onclick="predict()" class="btn-predict w-full py-3 rounded-xl font-medium mt-2">
+            Predict Price
+          </button>
+
+          <p id="form-error" class="text-sm hidden"></p>
+        </div>
+      </div>
+
+      <!-- Result card -->
+      <div class="result-frame p-7 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-8">
+          <span class="flex items-center gap-2 text-[15px] text-white/80">
+            <span class="w-2 h-2 rounded-full bg-[var(--cyan-glow)]"></span> BTC
+          </span>
+          <div class="w-9 h-9 rounded-full coin-badge flex items-center justify-center text-white/60 text-sm">$</div>
+        </div>
+
+        <div id="result-idle" class="text-center py-6">
+          <p class="text-[var(--text-dim)]">Enter today's OHLC and volume, then run a prediction.</p>
+        </div>
+
+        <div id="result-body" class="hidden">
+          <div class="text-center mb-6">
+            <p class="text-[var(--text-mid)] mb-2">Tomorrow's Closing Price:</p>
+            <p id="predicted-price" class="glow-number text-5xl font-bold text-white">$0</p>
+            <p class="mt-3 text-[15px]">
+              <span class="text-[var(--text-dim)]">Expected Change:</span>
+              <span id="predicted-change" class="text-[var(--cyan-glow)] font-medium">—</span>
+              <span class="text-[var(--text-dim)]">(Next 24h)</span>
+            </p>
+          </div>
+
+          <svg id="chart-svg" viewBox="0 0 700 260" class="w-full h-auto">
+            <!-- gridlines / axis labels -->
+            <g id="chart-axis" font-size="11" fill="#5b6472"></g>
+            <path id="chart-path" fill="none" stroke="var(--cyan-glow)" stroke-width="2.5"></path>
+            <circle id="chart-dot" r="5" fill="#dff3ff" stroke="var(--cyan-glow)" stroke-width="2"></circle>
+          </svg>
+        </div>
+
+        <div
+          class="w-9 h-9 rounded-full coin-badge flex items-center justify-center text-white/60 text-sm absolute bottom-6 right-6">
+          $</div>
+      </div>
+    </section>
+
+    <!-- HISTORY PAGE -->
+    <section id="page-history" class="hidden">
+      <div class="panel p-6">
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="text-lg font-semibold">Prediction History</h2>
+          <button onclick="clearHistory()"
+            class="text-sm text-[var(--text-dim)] hover:text-white transition">Clear</button>
+        </div>
+
+        <div id="history-empty" class="empty-state text-center py-16">
+          No predictions yet this session — run one from the Prediction tab.
+        </div>
+
+        <div id="history-table-wrap" class="hidden overflow-x-auto scroll-thin">
+          <table class="w-full text-sm text-left">
+            <thead>
+              <tr class="text-[var(--text-dim)] border-b border-white/5">
+                <th class="py-3 pr-4 font-normal">Time</th>
+                <th class="py-3 pr-4 font-normal">Closing</th>
+                <th class="py-3 pr-4 font-normal">Highest</th>
+                <th class="py-3 pr-4 font-normal">Lowest</th>
+                <th class="py-3 pr-4 font-normal">Volume</th>
+                <th class="py-3 pr-4 font-normal">Predicted</th>
+                <th class="py-3 pr-4 font-normal">Change</th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const API_URL = "/predict";
+    const history = [];
+
+    // Load nav
+    fetch('/nav.html')
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById('nav-placeholder').innerHTML = html;
+
+        window.agreeDisclaimer = function() {
+            sessionStorage.setItem('agreedToDisclaimer', 'true');
+            const modal = document.getElementById('disclaimer-modal');
+            if (modal) modal.style.display = 'none';
+        };
+
+        const hash = window.location.hash || '#prediction';
+        if (hash === '#history') {
+          // History: open directly, NO disclaimer
+          switchPage('history');
+        } else {
+          // Prediction: show disclaimer if not yet agreed
+          switchPage('prediction');
+          if (!sessionStorage.getItem('agreedToDisclaimer')) {
+            const modal = document.getElementById('disclaimer-modal');
+            if (modal) {
+              const cancelBtn = modal.querySelector('button');
+              if (cancelBtn) cancelBtn.onclick = function() { window.location.href = '/'; };
+              modal.style.display = 'flex';
+            }
+          }
+        }
+
+        document.getElementById('tab-prediction').addEventListener('click', e => {
+          e.preventDefault();
+          window.location.hash = 'prediction';
+          // Show disclaimer if not yet agreed when switching to Prediction tab
+          if (!sessionStorage.getItem('agreedToDisclaimer')) {
+            const modal = document.getElementById('disclaimer-modal');
+            if (modal) {
+              const cancelBtn = modal.querySelector('button');
+              if (cancelBtn) cancelBtn.onclick = function() { window.location.href = '/'; };
+              modal.style.display = 'flex';
+            }
+          } else {
+            switchPage('prediction');
+          }
+        });
+        document.getElementById('tab-history').addEventListener('click', e => {
+          e.preventDefault();
+          window.location.hash = 'history';
+          // History always opens directly
+          switchPage('history');
+        });
+      });
+
+    function switchPage(page) {
+      document.getElementById('page-prediction').classList.toggle('hidden', page !== 'prediction');
+      document.getElementById('page-history').classList.toggle('hidden', page !== 'history');
+
+      const tabPred = document.getElementById('tab-prediction');
+      const tabHist = document.getElementById('tab-history');
+      if (tabPred && tabHist) {
+        tabPred.classList.toggle('active', page === 'prediction');
+        tabHist.classList.toggle('active', page === 'history');
+      }
+    }
+
+    function fmtMoney(n) {
+      return '$' + Number(n).toLocaleString(undefined, { maximumFractionDigits: 0 });
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('form-error');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+
+    function clearError() {
+      const el = document.getElementById('form-error');
+      el.classList.add('hidden');
+      el.textContent = '';
+    }
+
+    function drawChart(closing, predicted) {
+      const svg = document.getElementById('chart-svg');
+      const axis = document.getElementById('chart-axis');
+      const path = document.getElementById('chart-path');
+      const dot = document.getElementById('chart-dot');
+
+      const w = 700, h = 260, padL = 40, padB = 24, padT = 10;
+      const lo = Math.min(closing, predicted) * 0.985;
+      const hi = Math.max(closing, predicted) * 1.015;
+
+      const points = [];
+      const n = 7;
+      for (let i = 0; i < n; i++) {
+        const t = i / (n - 1);
+        // gentle noise-free interpolation from closing -> predicted, easing up at the end
+        const eased = Math.pow(t, 1.6);
+        const val = closing + (predicted - closing) * eased;
+        const jitter = (i > 0 && i < n - 1) ? Math.sin(i * 1.7) * (hi - lo) * 0.02 : 0;
+        points.push(val + jitter);
+      }
+
+      const x = i => padL + (i / (n - 1)) * (w - padL - 10);
+      const y = v => padT + (1 - (v - lo) / (hi - lo)) * (h - padT - padB);
+
+      let d = '';
+      points.forEach((v, i) => {
+        d += (i === 0 ? 'M' : 'L') + x(i).toFixed(1) + ',' + y(v).toFixed(1) + ' ';
+      });
+      path.setAttribute('d', d.trim());
+      dot.setAttribute('cx', x(n - 1));
+      dot.setAttribute('cy', y(points[n - 1]));
+
+      // axis labels
+      axis.innerHTML = '';
+      const steps = 4;
+      for (let s = 0; s <= steps; s++) {
+        const val = lo + (hi - lo) * (s / steps);
+        const yy = y(val);
+        const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', 4);
+        t.setAttribute('y', yy + 4);
+        t.textContent = Math.round(val).toLocaleString();
+        axis.appendChild(t);
+      }
+      const today = new Date();
+      for (let i = 0; i < n; i += 2) {
+        const d2 = new Date(today);
+        d2.setDate(today.getDate() - (n - 1 - i));
+        const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', x(i) - 14);
+        t.setAttribute('y', h - 4);
+        t.textContent = d2.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        axis.appendChild(t);
+      }
+    }
+
+    function renderHistory() {
+      const empty = document.getElementById('history-empty');
+      const wrap = document.getElementById('history-table-wrap');
+      const tbody = document.getElementById('history-tbody');
+
+      if (history.length === 0) {
+        empty.classList.remove('hidden');
+        wrap.classList.add('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      wrap.classList.remove('hidden');
+
+      tbody.innerHTML = history.slice().reverse().map(row => `
+      <tr class="history-row">
+        <td class="py-3 pr-4 text-[var(--text-mid)]">${row.time}</td>
+        <td class="py-3 pr-4">${fmtMoney(row.closing)}</td>
+        <td class="py-3 pr-4">${fmtMoney(row.highest)}</td>
+        <td class="py-3 pr-4">${fmtMoney(row.lowest)}</td>
+        <td class="py-3 pr-4">${row.volume.toLocaleString()} BTC</td>
+        <td class="py-3 pr-4 font-medium text-white">${fmtMoney(row.predicted)}</td>
+        <td class="py-3 pr-4">
+          <span class="px-2 py-0.5 rounded-full text-xs ${row.change >= 0 ? 'chip-up' : 'chip-down'}">
+            ${row.change >= 0 ? '+' : ''}${row.change.toFixed(2)}%
+          </span>
+        </td>
+      </tr>
+    `).join('');
+    }
+
+    function clearHistory() {
+      history.length = 0;
+      renderHistory();
+    }
+
+    async function predict() {
+      clearError();
+      const btn = document.getElementById('predict-btn');
+      const closing = +document.getElementById('closing').value;
+      const highest = +document.getElementById('highest').value;
+      const lowest = +document.getElementById('lowest').value;
+      const volume = +document.getElementById('volume').value;
+
+      btn.disabled = true;
+      btn.textContent = 'Predicting…';
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            Closing_P: closing,
+            Highest_P: highest,
+            Lowest_P: lowest,
+            Volume: volume
+          })
+        });
+
+        if (!response.ok) throw new Error('Server responded with ' + response.status);
+        const data = await response.json();
+        const predicted = Number(data.prediction);
+        const change = ((predicted - closing) / closing) * 100;
+
+        document.getElementById('result-idle').classList.add('hidden');
+        document.getElementById('result-body').classList.remove('hidden');
+        document.getElementById('predicted-price').textContent = fmtMoney(predicted);
+        const changeEl = document.getElementById('predicted-change');
+        changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+        changeEl.style.color = change >= 0 ? '#6fe3a0' : '#f0806f';
+
+        drawChart(closing, predicted);
+
+        history.push({
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          closing, highest, lowest, volume,
+          predicted, change
+        });
+        renderHistory();
+
+      } catch (err) {
+        showError('Could not reach the prediction server at ' + API_URL + '. Make sure the FastApi backend is running.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Predict Price';
+      }
+    }
+  </script>
+
+</body>
+
+</html>

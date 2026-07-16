@@ -1,0 +1,189 @@
+:root {
+  --bg-0: #070a12;
+  --bg-1: #0c1120;
+  --bg-void: #070a12;
+  --bg-panel: #0c1120;
+  --bg-field: #0b0e15;
+  --border-soft: #1f2530;
+  --panel: rgba(255, 255, 255, 0.035);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --accent-cyan: #5ec8e8;
+  --accent-blue: #3b7fd9;
+  --accent-amber: #e8a24d;
+  --cyan-glow: #5ec8e8;
+  --cyan-dim: #2b3a4a;
+  --amber-glow: #e8a24d;
+  --text-hi: #eef2f8;
+  --text-dim: #7b8494;
+  --text-mid: #9aa7bd;
+  --text-low: #5f6b80;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background:
+    radial-gradient(ellipse 900px 500px at 15% -5%, rgba(94, 200, 232, 0.10), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 100% 10%, rgba(232, 162, 77, 0.06), transparent 55%),
+    var(--bg-0);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #eef2f8;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Ambient starfield + node lines, purely decorative */
+.atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,0.25) 0%, transparent 60%),
+    radial-gradient(2px 2px at 80% 20%, rgba(255,255,255,0.2) 0%, transparent 60%),
+    radial-gradient(1.5px 1.5px at 60% 70%, rgba(255,255,255,0.18) 0%, transparent 60%),
+    radial-gradient(1.5px 1.5px at 90% 60%, rgba(255,255,255,0.15) 0%, transparent 60%),
+    radial-gradient(1.5px 1.5px at 10% 80%, rgba(255,255,255,0.15) 0%, transparent 60%);
+  opacity: 0.8;
+}
+
+.atmosphere::after {
+  content: "";
+  position: absolute;
+  right: -10%;
+  bottom: -10%;
+  width: 60%;
+  height: 60%;
+  background: radial-gradient(circle, rgba(245,163,92,0.10) 0%, transparent 70%);
+}
+
+.atmosphere::before {
+  content: "";
+  position: absolute;
+  right: 10%;
+  top: -5%;
+  width: 45%;
+  height: 45%;
+  background: radial-gradient(circle, rgba(79,195,240,0.08) 0%, transparent 70%);
+}
+
+.panel {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)), var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+}
+
+.field {
+  background: var(--bg-field);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.field:focus-within {
+  border-color: var(--cyan-glow);
+  box-shadow: 0 0 0 3px rgba(79,195,240,0.12);
+}
+
+.field input {
+  background: transparent;
+  color: #f2f4f7;
+  outline: none;
+  width: 100%;
+}
+
+.btn-predict {
+  background: transparent;
+  border: 1px solid var(--amber-glow);
+  box-shadow: 0 0 18px rgba(245,163,92,0.25), inset 0 0 12px rgba(245,163,92,0.05);
+  transition: all 0.2s ease;
+  color: #ffe2c2;
+}
+
+.btn-predict:hover {
+  background: rgba(245,163,92,0.1);
+  box-shadow: 0 0 28px rgba(245,163,92,0.4), inset 0 0 16px rgba(245,163,92,0.1);
+}
+
+.btn-predict:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.result-frame {
+  border: 1px solid rgba(79,195,240,0.35);
+  box-shadow: 0 0 40px rgba(79,195,240,0.08), inset 0 0 60px rgba(79,195,240,0.03);
+  border-radius: 20px;
+}
+
+.glow-number {
+  text-shadow: 0 0 24px rgba(255,255,255,0.35), 0 0 48px rgba(79,195,240,0.25);
+}
+
+.nav-link {
+  color: var(--text-dim);
+  transition: color 0.15s ease;
+}
+
+.nav-link:not(.disabled):hover {
+  color: #e7eaef;
+  cursor: pointer;
+}
+
+.nav-link.active {
+  color: #fff;
+  font-weight: 600;
+}
+
+.nav-link.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.coin-badge {
+  background: radial-gradient(circle at 30% 30%, #4a4f58, #2a2e36);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.history-row {
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.history-row:last-child {
+  border-bottom: none;
+}
+
+.chip-up {
+  color: #6fe3a0;
+  background: rgba(111,227,160,0.1);
+  border: 1px solid rgba(111,227,160,0.25);
+}
+
+.chip-down {
+  color: #f0806f;
+  background: rgba(240,128,111,0.1);
+  border: 1px solid rgba(240,128,111,0.25);
+}
+
+.empty-state {
+  color: var(--text-dim);
+}
+
+.scroll-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: var(--border-soft);
+  border-radius: 3px;
+}
+
+.toast {
+  border: 1px solid rgba(240,128,111,0.4);
+  background: rgba(240,128,111,0.08);
+  color: #f6c2ba;
+}
