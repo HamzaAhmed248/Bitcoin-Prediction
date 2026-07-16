@@ -1,0 +1,1 @@
+Machine Learning-based Bitcoin price prediction system trained on 7 years of historical market data. Uses technical indicators (RSI, MACD, Bollinger Bands, EMA), feature engineering, and a Stacking Regressor (XGBoost + Linear Regression + Ridge) to forecast next-day Bitcoin closing prices.
