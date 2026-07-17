@@ -2,6 +2,7 @@
   "version": 2,
   "functions": {
     "main.py": {
+      "runtime": "vercel-python@3.0.7",
       "includeFiles": "**/*.{csv,pkl,html,css}"
     }
   },
