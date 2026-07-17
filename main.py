@@ -89,6 +89,11 @@ def build_features(df):
 
 
 
+@app.get("/favicon.ico", include_in_schema=False)
+def serve_favicon():
+    from fastapi import Response
+    return Response(content=b"", media_type="image/x-icon")
+
 @app.get("/")
 def serve_about_root():
     return FileResponse(os.path.join(BASE_DIR, "about.html"))
