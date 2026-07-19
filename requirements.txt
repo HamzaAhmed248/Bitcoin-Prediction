@@ -2,5 +2,6 @@ fastapi
 pydantic
 pandas
 scikit-learn
+xgboost
 numpy<2.0.0
 joblib
