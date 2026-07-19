@@ -1,7 +1,7 @@
 {
   "version": 2,
   "functions": {
-    "main.py": {
+    "app.py": {
       "runtime": "vercel-python@3.0.7",
       "includeFiles": "**/*.{csv,pkl,html,css}"
     }
@@ -9,7 +9,7 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/main.py"
+      "destination": "/app.py"
     }
   ]
 }
