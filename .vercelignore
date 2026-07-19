@@ -6,5 +6,8 @@ __pycache__/
 venv/
 .now/
 .vercel/
+training/
+*.ipynb
+*.csv
 Model Making.py
-BTC_7years.csv
+
