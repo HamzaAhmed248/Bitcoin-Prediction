@@ -1,15 +1,9 @@
 {
   "version": 2,
-  "functions": {
-    "app.py": {
-      "runtime": "vercel-python@3.0.7",
-      "includeFiles": "**/*.{csv,pkl,html,css}"
-    }
-  },
-  "rewrites": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/app.py"
+      "src": "/(.*)",
+      "dest": "/app.py"
     }
   ]
 }

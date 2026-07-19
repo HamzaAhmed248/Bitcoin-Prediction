@@ -5,8 +5,7 @@ import pandas as pd
 import joblib
 from datetime import datetime
 import os
-# pyrefly: ignore [missing-import]
-from mangum import Mangum
+
 
 app = FastAPI()
 
@@ -158,7 +157,4 @@ def predict(data: UserInput):
     return {
         "prediction": round(float(prediction), 2)
     }
-
-
-# Vercel serverless handler
-handler = Mangum(app)
+
